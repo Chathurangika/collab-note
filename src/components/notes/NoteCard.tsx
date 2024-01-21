@@ -5,18 +5,8 @@ import CardActions from "@mui/material/CardActions";
 import CardContent from "@mui/material/CardContent";
 import Typography from "@mui/material/Typography";
 import { CardHeader, IconButton } from "@mui/material";
-
 import ReadMoreIcon from "@mui/icons-material/ReadMore";
 import ShareIcon from "@mui/icons-material/Share";
-
-const bull = (
-    <Box
-        component="span"
-        sx={{ display: "inline-block", mx: "2px", transform: "scale(0.8)" }}
-    >
-        •
-    </Box>
-);
 
 const NoteCard: React.FC = () => {
     return (
