@@ -5,7 +5,7 @@ export default {
   },
   auth: {
     index: "/auth",
-    signIn: "/auth/sign-in",
+    login: "/auth/login",
   },
   404: "/404",
 } as const;

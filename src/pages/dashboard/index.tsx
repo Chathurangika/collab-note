@@ -1,11 +1,11 @@
-// material-ui
 import { Box, Tab, Tabs, Typography } from "@mui/material";
 import MainLayout from "../../components/layout/MainLayout";
 import FolderSharedIcon from '@mui/icons-material/FolderShared';
 import DescriptionIcon from '@mui/icons-material/Description';
 import React from "react";
 import NoteCard from "../../components/notes/NoteCard";
-
+import { useAuth } from "../../context/AuthContext";
+import { useAppSelector } from "../../slices/hooks";
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -43,6 +43,10 @@ function a11yProps(index: number) {
 
 const Dashboard = () => {
   const [value, setValue] = React.useState(0);
+  const { authenticated } = useAuth();
+
+  const username = useAppSelector((state) => state.app.userFullName);
+  const userId = useAppSelector((state) => state.app.userId)
 
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
     setValue(newValue);
@@ -51,22 +55,24 @@ const Dashboard = () => {
   return (
     <MainLayout>
       <Typography variant="h5" color="primary" sx={{ mt: "4px", mb: "1rem" }}>
-        Welcome
+        Welcome -{username}
       </Typography>
-      <Box sx={{ width: '100%' }}>
-        <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-          <Tabs value={value} onChange={handleChange} aria-label="basic tabs example">
-            <Tab icon={<DescriptionIcon />} iconPosition="start" label="My Notes" {...a11yProps(0)} />
-            <Tab icon={<FolderSharedIcon />} iconPosition="start" label="Shared Notes" {...a11yProps(1)} />
-          </Tabs>
-        </Box>
-        <CustomTabPanel value={value} index={0}>
-          <NoteCard/>
-        </CustomTabPanel>
-        <CustomTabPanel value={value} index={1}>
-          <NoteCard/>
-        </CustomTabPanel>
-      </Box>
+      {authenticated && (
+        <Box sx={{ width: '100%' }}>
+          <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+            <Tabs value={value} onChange={handleChange} aria-label="basic tabs example">
+              <Tab icon={<DescriptionIcon />} iconPosition="start" label="My Notes" {...a11yProps(0)} />
+              <Tab icon={<FolderSharedIcon />} iconPosition="start" label="Shared Notes" {...a11yProps(1)} />
+            </Tabs>
+          </Box>
+          <CustomTabPanel value={value} index={0}>
+            <NoteCard />
+          </CustomTabPanel>
+          <CustomTabPanel value={value} index={1}>
+            <NoteCard />
+          </CustomTabPanel>
+        </Box>)}
+
     </MainLayout>
   );
 };

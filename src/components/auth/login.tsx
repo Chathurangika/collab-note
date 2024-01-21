@@ -57,7 +57,7 @@ const LoginForm: React.FC = () => {
         password: data.password,
       });
 
-      authLogin(authData.token);
+      authLogin(authData);
       reset();
 
       window.location.reload();

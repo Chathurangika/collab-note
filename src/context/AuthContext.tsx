@@ -1,33 +1,96 @@
-import { createContext, useContext, ReactNode, useState } from 'react';
-import { removeToken, saveToken } from '../services/auth/auth.service';
+import React, {
+  useEffect,
+  useReducer,
+  createContext,
+  useContext,
+} from "react";
+// @ts-ignore
+import Cookies from "js-cookie";
+import { ILoggedUser, ILoginResponse } from "../services/auth/interface";
 
-type AuthContextProps = {
-  isAuthenticated: boolean;
-  login: (token: string) => void;
+
+interface IAuthState {
+  authenticated: boolean;
+}
+
+interface IAuthContext extends IAuthState {
   logout: () => void;
+  login: (data: ILoginResponse) => void;
+
+}
+
+const defaultState: IAuthState = {
+  authenticated: false,
 };
 
-const AuthContext = createContext<AuthContextProps | undefined>(undefined);
+const defaultContext: IAuthContext = {
+  ...defaultState,
+  logout: () => { },
+  login: () => { },
+};
 
-export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+export const AuthContext = createContext<IAuthContext>(defaultContext);
 
-  const login = (token: string) => {
-    saveToken(token);
-    setIsAuthenticated(true);
+type ActionPayload =
+  | { type: "login" }
+  | { type: "logout" }
+
+const reducer = (state: IAuthState, action: ActionPayload) => {
+  if (action.type === "login") {
+    return {
+      ...state,
+      authenticated: true,
+    };
+  }
+
+  if (action.type === "logout") {
+    return {
+      ...state,
+      authenticated: false,
+    };
+  }
+  return state;
+};
+
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
+
+  const [values, dispatch] = useReducer(reducer, defaultState);
+
+  const login = (data: ILoginResponse) => {
+    Cookies.set("user", data.userId);
+    Cookies.set("userFullName", data.fullName);
+    Cookies.set("accessToken", data.token);
   };
 
   const logout = () => {
-    removeToken();
-    setIsAuthenticated(false);
+    Cookies.remove("accessToken");
+    dispatch({ type: "logout" });
   };
 
+  useEffect(() => {
+    const accessToken = Cookies.get("accessToken");
+    if (!accessToken) {
+      return;
+    }
+    dispatch({ type: "login" });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   return (
-    <AuthContext.Provider value={{ isAuthenticated, login, logout }}>
+    <AuthContext.Provider
+      value={{
+        ...values,
+        logout,
+        login
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
 };
+
 
 export const useAuth = () => {
   const context = useContext(AuthContext);

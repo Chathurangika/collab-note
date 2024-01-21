@@ -15,39 +15,40 @@ import { CssBaseline } from '@mui/material';
 import SideMenu from './SideMenu';
 import { styled } from '@mui/material/styles';
 import { useAppDispatch, useAppSelector } from '../../slices/hooks';
-import { setSideMenuOpen } from '../../slices/appSlice';
+import { setSideMenuOpen, setUserDetails } from '../../slices/appSlice';
 import MuiAppBar, { AppBarProps as MuiAppBarProps } from '@mui/material/AppBar';
+import { useAuth } from '../../context/AuthContext';
 
 const drawerWidth = 240;
 const DrawerHeader = styled('div')(({ theme }) => ({
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'flex-end',
-  padding: theme.spacing(0, 1),
-  // necessary for content to be below app bar
-  ...theme.mixins.toolbar,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+    padding: theme.spacing(0, 1),
+    // necessary for content to be below app bar
+    ...theme.mixins.toolbar,
 }));
 
 interface AppBarProps extends MuiAppBarProps {
-  open?: boolean;
+    open?: boolean;
 }
 
 const AppBar = styled(MuiAppBar, {
-  shouldForwardProp: (prop) => prop !== 'open',
+    shouldForwardProp: (prop) => prop !== 'open',
 })<AppBarProps>(({ theme, open }) => ({
-  zIndex: theme.zIndex.drawer + 1,
-  transition: theme.transitions.create(['width', 'margin'], {
-    easing: theme.transitions.easing.sharp,
-    duration: theme.transitions.duration.leavingScreen,
-  }),
-  ...(open && {
-    marginLeft: drawerWidth,
-    width: `calc(100% - ${drawerWidth}px)`,
+    zIndex: theme.zIndex.drawer + 1,
     transition: theme.transitions.create(['width', 'margin'], {
-      easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.enteringScreen,
+        easing: theme.transitions.easing.sharp,
+        duration: theme.transitions.duration.leavingScreen,
     }),
-  }),
+    ...(open && {
+        marginLeft: drawerWidth,
+        width: `calc(100% - ${drawerWidth}px)`,
+        transition: theme.transitions.create(['width', 'margin'], {
+            easing: theme.transitions.easing.sharp,
+            duration: theme.transitions.duration.enteringScreen,
+        }),
+    }),
 }));
 
 interface MainLayoutProps {
@@ -56,6 +57,7 @@ interface MainLayoutProps {
 
 const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
 
+    const { logout } = useAuth();
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
     const [mobileMoreAnchorEl, setMobileMoreAnchorEl] =
         React.useState<null | HTMLElement>(null);
@@ -83,6 +85,14 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
     const dispatch = useAppDispatch();
     const open = useAppSelector((state) => state.app.sideMenuOpen);
 
+    const handleLogout = () => {
+        logout()
+    }
+
+    React.useEffect(()=>{
+        dispatch(setUserDetails())
+    })
+
     const menuId = 'primary-search-account-menu';
     const renderMenu = (
         <Menu
@@ -102,6 +112,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
         >
             <MenuItem onClick={handleMenuClose}>Profile</MenuItem>
             <MenuItem onClick={handleMenuClose}>My account</MenuItem>
+            <MenuItem onClick={handleLogout}>Logout</MenuItem>
         </Menu>
     );
 
