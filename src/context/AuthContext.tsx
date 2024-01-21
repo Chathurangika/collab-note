@@ -6,7 +6,7 @@ import React, {
 } from "react";
 // @ts-ignore
 import Cookies from "js-cookie";
-import { ILoggedUser, ILoginResponse } from "../services/auth/interface";
+import { ILoginResponse } from "../services/auth/interface";
 
 
 interface IAuthState {
